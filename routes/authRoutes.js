@@ -2,7 +2,7 @@ var User = require('../models/users');
 var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
 var config = require('../config');
-module.exports = function(express){
+module.exports = function(express, io){
   //Creating Auth API
   var authRouter = express.Router();
   //Creating API Endpoints
@@ -33,7 +33,7 @@ module.exports = function(express){
           var token = jwt.sign({
 	        	userName: user.userName
 	        }, config.superSecret, {
-	          expiresInMinutes: 1440 // expires in 24 hours
+	          expiresIn: 60 * 60 * 24 // expires in 24 hours
 	        });
           //Response
           res.json({
@@ -45,6 +45,11 @@ module.exports = function(express){
       }
     });
   });
+
+  authRouter.get('/api/me', function(req, res){
+    console.log(req.decoded.userName,'requesting info')
+    res.send(req.decoded);
+  })
 
   authRouter.post('/register',function(req, res) {
 			var user = new User();		// create a new instance of the User model
